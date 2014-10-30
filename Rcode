@@ -152,15 +152,20 @@ for(l in 1:length(local_stem_density)){
 #see example data file:  "sample.Gentry.plot.data.for.Rcode.txt"
 #################################################################
 ####################################################
+#################################################################
+####################################################
 ## START FUNCTION
 #################################################################
 ####################################################
 ses.beta.function=function(gdata, Nsim=999)  
   # 'gdata' is the data file, 'Nsim' is the number of randomizations for calculating expected/null beta
 {
-  plot.gamma=length(unique(gdata$spp))   #calculate the total number of species at the site
-  transect.spp=tapply(gdata$spp,gdata$transect,unique)  #generate species list for each transect
-  obs.mean.alpha=mean(sapply(transect.spp,length))  #calculate average number of species per transect
+  spp.count=colSums(gdata[,-2]) #determine number of species 
+  plot.gamma=length(which(spp.count>0))  #calculate the total number of species at the site  
+  gdata.m <- melt(gdata, id.vars = c(gdata[,1], gdata[,2])
+  gdata.new <- gdata.m[gdata.m$value!=0, ]
+  sample.spp=tapply(gdata.new$variable,gdata.new$sample,unique)  #generate species list for each transect
+  obs.mean.alpha=mean(sapply(sample.spp,length))  #calculate average number of species per transect
   obs.beta=1-obs.mean.alpha/plot.gamma  #calculate observed beta partition
   rand.mean.alpha=vector(length=Nsim)  #create empty vector to be filled in with randomly generated alpha values
   for(j in 1:Nsim)   #start loop for simulations
@@ -186,4 +191,3 @@ ses.beta.function=function(gdata, Nsim=999)
 ## END FUNCTION
 #################################################################
 ####################################################
-
