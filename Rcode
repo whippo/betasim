@@ -73,7 +73,7 @@ for(l in 1:length(local_stem_density)){
   for(i in 1:length(gamma_vect)){
     for(j in 1:reps){
       ## generate the species pool of size gamma, with abundances distribued as a lognormal: set to true: data:
-        occur<-rlnorm(n=gamma_vect[i])
+      occur<-rlnorm(n=gamma_vect[i])
       #use uniform abundance distribution if logical is
       if(unif_abund){
         occur<-rep(1, length(occur))
@@ -87,22 +87,22 @@ for(l in 1:length(local_stem_density)){
       for(k in 1:ncom){
         local<-sample(1:gamma_vect[i],
                       size=local_stem_density[l], replace=TRUE, prob=occur)
-        table(local)]->tab
-        names(tab)<-tab
-results[k, unlist(dimnames(results)[2]) %in%
+        table(local)->tab
+names(tab)<-tab
+results[k, unlist(dimnames(results)[2]) ]
       }
 ## remove any species from the species by site matrix that do not occur in any community:
-  if(sum(apply(results, MARGIN=2, FUN=sum)==0)>0    ){
-    results[,-(which(apply(results, MARGIN=2,
-                           FUN=sum)==0))]->results
-  }
+if(sum(apply(results, MARGIN=2, FUN=sum)==0)>0    ){
+  results[,-(which(apply(results, MARGIN=2,
+                         FUN=sum)==0))]->results
+}
 ## convert the abundance-based species by site matrix into a presence/ absence matrix:
-  results->occur_mat
+results->occur_mat
 occur_mat[occur_mat>0]<-1
 ## calculate the alpha diversity of each community:
 apply(occur_mat, MARGIN=1, FUN=sum)->alphas
 ## calculate the gamma diversity of the set of transects:
-  gamma_observed<-ncol(results)
+gamma_observed<-ncol(results)
 gamma_obs<-c(gamma_obs, gamma_observed)
 gamma<-c(gamma, gamma_vect[i])
 stems<-c(stems, local_stem_density[l])
@@ -144,20 +144,19 @@ for(l in 1:length(local_stem_density)){
 # where, SES = (observed.beta-mean.expected.beta)/sd.expected.beta
 # The function takes the data for a location that contains multiple plots (e.g., a single location from the Gentry dataset)
 #  the data file should have one row for each individual, with two columns:
-  #  'transect' column contains the sample/transect name where the individual is located
+#  'transect' column contains the sample/transect name where the individual is located
 #  'spp' column contains the species identification of the individual
 # Note that in this format, there will be multiple rows with identical information,
 # since species can have multiple individuals present in a transect.
 # This function is for use with abundance data  (not presence/absence data)!
-  #see example data file:  "sample.Gentry.plot.data.for.Rcode.txt"
-  #################################################################
+#see example data file:  "sample.Gentry.plot.data.for.Rcode.txt"
+#################################################################
 ####################################################
 ## START FUNCTION
 #################################################################
 ####################################################
-ses.beta.function=function(gdata, Nsim=999)  # 'gdata' is the
-  data file, 'Nsim' is the number of randomizations for
-calculating expected/null beta
+ses.beta.function=function(gdata, Nsim=999)  
+  # 'gdata' is the data file, 'Nsim' is the number of randomizations for calculating expected/null beta
 {
   plot.gamma=length(unique(gdata$spp))   #calculate the total number of species at the site
   transect.spp=tapply(gdata$spp,gdata$transect,unique)  #generate species list for each transect
@@ -170,21 +169,21 @@ calculating expected/null beta
     #swaps order of plotnames
     swap.data=data.frame("transect"=samp,"spp"=gdata$spp)
     #assigns random plotnames to individuals
-    rand.transect.spp=tapply(swap.data$spp,swap.data$transect,unique
-    )  #generate species list for each transect
+    rand.transect.spp=tapply(swap.data$spp,swap.data$transect,unique)
+    #generate species list for each transect
     rand.mean.alpha[j]=mean(sapply(rand.transect.spp,length))
     #calculate average number of species per transect
-  }  #end loop for simulations
+  }  
+  #end loop for simulations
   null.plot.beta=1-rand.mean.alpha/plot.gamma  #calculates the 1000 random beta values
   mean.null.beta=mean(null.plot.beta) #calculates the mean of the random beta values
   sd.null.beta=sd(null.plot.beta)  #calculates the sd of the random beta values
   ses.beta=(obs.beta-mean.null.beta)/sd.null.beta  #calculates the deviation of the observed from expected (random) beta
-  return(c("gamma"=plot.gamma,"obs.mean.alpha"=obs.mean.alpha,"obs.
-           beta"=obs.beta,"mean.null.beta"=mean.null.beta,"sd.null.beta"=sd
-           .null.beta,"ses.beta"=ses.beta))
+  return(c("gamma"=plot.gamma,"obs.mean.alpha"=obs.mean.alpha,"obs.beta"=obs.beta,"mean.null.beta"=mean.null.beta,"sd.null.beta"=sd.null.beta,"ses.beta"=ses.beta))
 }
 #################################################################
 ####################################################
 ## END FUNCTION
 #################################################################
 ####################################################
+
