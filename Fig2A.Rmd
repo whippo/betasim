@@ -65,19 +65,32 @@ sp_prob_lnorm <- function(pool){
   probs <- abundances/sum(abundances) #converts the abundance to probabilities
   probs
 }
+
+
+## Given a vector of species probabilities AND a local density AND the number of transects per community, what is the probability that a species occurs in a given community?
+local_occur <- function(nstems, probs, .ncom = ncom){
+  prob_in_one_comm <- (1 - exp(nstems * log(1 - probs)))
+  in_how_many2 <- lapply(.ncom:1, function(x) dbinom(x, size = .ncom, prob = prob_in_one_comm))
+  in_how_many <- do.call(rbind, in_how_many2)
+  pi_vect <- rowSums(in_how_many)/ncom
+  pi_vect
+  }
+
+## Given a vector of species probabilities AND a local density AND a number of transects per site, what is the observed gamma?
+gammas <- function(nstems, probs, .ncom = ncom){
+  gamma_observed <- sum(1 - exp(nstems * .ncom * log(1 - probs)))
+  gamma_observed
+  }
 ```
 
-
+if you want you can combine these in a for loop:
 ```{r}
 for (j in 1:length(num_stems)) {
   beta_obs <- NULL
   for(i in 1:length(gamma_vect)){
-    probs <- sp_prob_lnorm(pool = gamma_vect[i])
-    prob_in_one_comm <- (1 - exp(num_stems[j] * log(1 - probs)))
-    in_how_many2 <- lapply(ncom:1, function(x) dbinom(x, size = ncom, prob = prob_in_one_comm))
-    in_how_many <- do.call(rbind, in_how_many2)
-    pi_vect <- rowSums(in_how_many)/ncom
-    gamma_observed <- sum(1 - exp(num_stems[j]*ncom *log(1 - probs)))
+    allprobs <- sp_prob_lnorm(pool = gamma_vect[i])
+    pi_vect <- local_occur(nstems = num_stems[j], probs = allprobs)
+    gamma_observed <- gammas(num_stems[j], probs = allprobs)
     beta_partition <- (1 - sum((ncom:1)*pi_vect/gamma_observed))
     beta_obs <- c(beta_obs, beta_partition)
     gamma_obs<-c(gamma_obs, gamma_observed)
@@ -88,5 +101,25 @@ plot(gamma_vect, beta_obs_matrix[1,], type = "l", ylim = c(0,1), xlim=c(0,300),x
 for (m in 2:length(num_stems)) {
   points(gamma_vect, beta_obs_matrix[m,], type = "l", lwd=2)
 }
+```
+
+
+or you can use a vectorized version. whatever is easier:
+```{r}
+## betapartition is calculated from both local occurrance number and observed gamma, AND the number of local samples:
+
+betapart <- function(ngamma, loc.abd, .ncom = ncom){
+    allprobs <- sp_prob_lnorm(pool = ngamma)
+    pi_vect <- local_occur(nstems = loc.abd, probs = allprobs)
+    gamma_observed <- gammas(num_stems[j], probs = allprobs)
+    beta_partition <- 1 - sum((.ncom:1) * pi_vect / gamma_observed)
+    beta_partition
+}
+
+gammacurve <- function(abd, .gamma_vec = gamma_vect){
+  sapply(.gamma_vec, function(x) betapart(ngamma = x, loc.abd = abd))
+}
+
+matplot(gamma_vect, sapply(num_stems, gammacurve), type = 'l')
 ```
 
