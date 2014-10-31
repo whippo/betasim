@@ -73,7 +73,7 @@ for (j in 1:length(num_stems)) {
   beta_obs <- NULL
   for(i in 1:length(gamma_vect)){
     probs <- sp_prob_lnorm(pool = gamma_vect[i])
-    prob_in_one_comm <- (1 - exp(num_stems[j]*log(1 - probs)))
+    prob_in_one_comm <- (1 - exp(num_stems[j] * log(1 - probs)))
     in_how_many2 <- lapply(ncom:1, function(x) dbinom(x, size = ncom, prob = prob_in_one_comm))
     in_how_many <- do.call(rbind, in_how_many2)
     pi_vect <- rowSums(in_how_many)/ncom
@@ -88,9 +88,5 @@ plot(gamma_vect, beta_obs_matrix[1,], type = "l", ylim = c(0,1), xlim=c(0,300),x
 for (m in 2:length(num_stems)) {
   points(gamma_vect, beta_obs_matrix[m,], type = "l", lwd=2)
 }
-```
-
-```{r}
-#lapply(gamma_vect, sp_prob_lnorm)
 ```
 
