@@ -74,13 +74,11 @@ for (j in 1:length(num_stems)) {
   for(i in 1:length(gamma_vect)){
     probs <- sp_prob_lnorm(pool = gamma_vect[i])
     prob_in_one_comm <- (1 - exp(num_stems[j]*log(1 - probs)))
+    in_how_many2 <- lapply(ncom:1, function(x) dbinom(x, size = ncom, prob = prob_in_one_comm))
+    in_how_many <- do.call(rbind, in_how_many2)
+    pi_vect <- rowSums(in_how_many)/ncom
     gamma_observed <- sum(1 - exp(num_stems[j]*ncom *log(1 - probs)))
-    in_how_many = NULL
-    for(k in 1:ncom) {
-      in_how_many = rbind(dbinom(k,size = ncom, prob = prob_in_one_comm), in_how_many)
-    }
-    pi_vect <- apply(in_how_many, MARGIN = 1, FUN=sum)/ncom
-    beta_partition <- (1 - sum(seq(ncom,1,by= -1)*pi_vect/gamma_observed))
+    beta_partition <- (1 - sum((ncom:1)*pi_vect/gamma_observed))
     beta_obs <- c(beta_obs, beta_partition)
     gamma_obs<-c(gamma_obs, gamma_observed)
   }
