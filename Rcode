@@ -151,7 +151,6 @@ for(l in 1:length(local_stem_density)){
 # This function is for use with abundance data  (not presence/absence data)!
 #see example data file:  "sample.Gentry.plot.data.for.Rcode.txt"
 #################################################################
-####################################################
 #################################################################
 ####################################################
 ## START FUNCTION
@@ -160,23 +159,24 @@ for(l in 1:length(local_stem_density)){
 ses.beta.function=function(gdata, Nsim=999)  
   # 'gdata' is the data file, 'Nsim' is the number of randomizations for calculating expected/null beta
 {
-  spp.count=colSums(gdata[,-2]) #determine number of species 
+  spp.count=colSums(gdata[,c(-1,-2)]) #determine number of species names
   plot.gamma=length(which(spp.count>0))  #calculate the total number of species at the site  
-  gdata.m <- melt(gdata, id.vars = c(gdata[,1], gdata[,2])
-  gdata.new <- gdata.m[gdata.m$value!=0, ]
+  gdata.m=melt(gdata, id.vars = c(names(gdata[1]), names(gdata[2]))) #convert data to long form
+  gdata.new=gdata.m[gdata.m$value!=0, ] #remove zero counts of organisms
   sample.spp=tapply(gdata.new$variable,gdata.new$sample,unique)  #generate species list for each transect
   obs.mean.alpha=mean(sapply(sample.spp,length))  #calculate average number of species per transect
   obs.beta=1-obs.mean.alpha/plot.gamma  #calculate observed beta partition
   rand.mean.alpha=vector(length=Nsim)  #create empty vector to be filled in with randomly generated alpha values
+  gdata.vec <- gdata.new[rep(row.names(gdata.new), gdata.new$value), 2:3] #create pool of sampled organisms
   for(j in 1:Nsim)   #start loop for simulations
   {
-    samp=sample(gdata$transect,length(gdata$transect),replace=F)
+    samp=sample(gdata.vec$sample,length(gdata.vec$sample),replace=F)
     #swaps order of plotnames
-    swap.data=data.frame("transect"=samp,"spp"=gdata$spp)
+    swap.data=data.frame("sample"=samp,"spp"=gdata.vec$variable)
     #assigns random plotnames to individuals
-    rand.transect.spp=tapply(swap.data$spp,swap.data$transect,unique)
-    #generate species list for each transect
-    rand.mean.alpha[j]=mean(sapply(rand.transect.spp,length))
+    rand.sample.spp=tapply(swap.data$spp,swap.data$sample,unique)
+    #generate species list for each sample
+    rand.mean.alpha[j]=mean(sapply(rand.sample.spp,length))
     #calculate average number of species per transect
   }  
   #end loop for simulations
