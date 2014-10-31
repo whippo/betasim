@@ -1,15 +1,11 @@
----
-title: "Algebraic solution"
-author: "Andrew MacDonald"
-date: '2014-10-30'
-output: 
-  html_document:
-    keep_md: true
----
+# Algebraic solution
+Andrew MacDonald  
+2014-10-30  
 
 A reproduction of figure 2A in Kraft et al 2011
 
-```{r}
+
+```r
 ###############################################################
 ## Algebraic solution for the beta partition: (i.e. fig 2A) ###
 ################################################################
@@ -25,7 +21,8 @@ beta_obs_matrix<-matrix(0,length(num_stems), length(gamma_vect))
 probs <- NULL
 ```
 
-```{r}
+
+```r
 for (j in 1:length(num_stems)) {
   beta_obs <- NULL
   for(i in 1:length(gamma_vect)){
@@ -54,10 +51,13 @@ for (m in 2:length(num_stems)) {
 }
 ```
 
+![plot of chunk unnamed-chunk-2](./Fig2A_files/figure-html/unnamed-chunk-2.png) 
+
 
 I think this could be considerably simplified by breaking it into a few functions:
 
-```{r}
+
+```r
 ## Given the size of a species pool, what are the lognormal probabilities of each species?
 
 sp_prob_lnorm <- function(pool){
@@ -86,7 +86,8 @@ gammas <- function(nstems, probs, .ncom = ncom){
 ```
 
 if you want you can combine these in a for loop:
-```{r}
+
+```r
 for (j in 1:length(num_stems)) {
   beta_obs <- NULL
   for(i in 1:length(gamma_vect)){
@@ -105,9 +106,12 @@ for (m in 2:length(num_stems)) {
 }
 ```
 
+![plot of chunk unnamed-chunk-4](./Fig2A_files/figure-html/unnamed-chunk-4.png) 
+
 
 or you can use a vectorized version. whatever is easier:
-```{r}
+
+```r
 ## betapartition is calculated from both local occurrance number and observed gamma, AND the number of local samples:
 
 betapart <- function(ngamma, loc.abd, .ncom = ncom){
@@ -124,4 +128,6 @@ gammacurve <- function(abd, .gamma_vec = gamma_vect){
 
 matplot(gamma_vect, sapply(num_stems, gammacurve), type = 'l')
 ```
+
+![plot of chunk unnamed-chunk-5](./Fig2A_files/figure-html/unnamed-chunk-5.png) 
 
